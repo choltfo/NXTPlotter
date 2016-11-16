@@ -5,6 +5,7 @@
 
 #define XAXIS motorA
 #define YAXIS motorB
+#define TOOLMOTOR motorC
 
 #define XENDSTOP S1
 #define YENDSTOP S2

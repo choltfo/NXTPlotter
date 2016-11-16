@@ -69,6 +69,10 @@ void moveLinear (float x, float y) {
 }
 
 
+void setTool (int toolNumber) {
+		motor[TOOLMOTOR] = 100;
+}
+
 
 task main() {
 	resetAxis(XAXIS);
