@@ -1,6 +1,8 @@
 
 #include "constants.h"
 
+#include "fileIO.c"
+
 void resetAxis(int axis) {
 	nMotorEncoder[axis] = 0;
 }
@@ -67,7 +69,6 @@ void moveLinear (float x, float y) {
 	motor[YAXIS] = 0;
 	nSyncedMotors = synchNone;
 }
-
 
 void setTool (int toolNumber) {
 		motor[TOOLMOTOR] = 100;
