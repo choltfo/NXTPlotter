@@ -80,7 +80,8 @@ void readFile(const string fileName) {
 		// parseGCode(incomingString);
 
 		char prefix = incomingString[0];
-		char * ref = incomingString+1;
+		char * ref = incomingString;
+		ref++; // You'd think this could be one line. Compiler doesn't like it.
 		int opCode = parseInt(ref);
 
 		//displayTextLine(2, incomingString);
