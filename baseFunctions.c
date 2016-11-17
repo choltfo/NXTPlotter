@@ -1,7 +1,7 @@
 
 #include "constants.h"
 
-#include "fileIO.c"
+#include "fileRead.c"
 
 void resetAxis(int axis) {
 	nMotorEncoder[axis] = 0;
@@ -24,6 +24,7 @@ float min(float a, float b) {
 	return (b<a)?b:a;
 }
 
+// G1 - move the tool in a straight line.
 void moveLinear (float x, float y) {
 	motor[XAXIS] = 0;
 	motor[YAXIS] = 0;
@@ -70,12 +71,40 @@ void moveLinear (float x, float y) {
 	nSyncedMotors = synchNone;
 }
 
+// G0 - move the pen as quickly as allowed, with a dogleg.
+void moveImmediate (float x, float y) {
+	motor[XAXIS] = 0;
+	motor[YAXIS] = 0;
+
+	float deltaX = x - getCurrentAxis(XAXIS);
+	float deltaY = y - getCurrentAxis(YAXIS);
+
+	motor[XAXIS] = maxPower*sgn(deltaX);
+	motor[YAXIS] = maxPower*sgn(deltaY);
+
+	while(nMotorRunState[XAXIS] != runStateIdle || nMotorRunState[YAXIS] != runStateIdle) {
+		if (getCurrentAxis(XAXIS)*sgn(deltaX) > x*sgn(deltaX))
+			motor[XAXIS] = 0;
+		if (getCurrentAxis(YAXIS)*sgn(deltaY) > y*sgn(deltaY))
+			motor[YAXIS] = 0;
+		displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
+		displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
+	}
+
+
+
+	motor[XAXIS] = 0;
+	motor[YAXIS] = 0;
+	nSyncedMotors = synchNone;
+}
+
 void setTool (int toolNumber) {
 		motor[TOOLMOTOR] = 100;
 }
 
 
 task main() {
+
 	resetAxis(XAXIS);
 	resetAxis(YAXIS);
 
@@ -86,35 +115,32 @@ task main() {
 	moveLinear(-100,-100);
 	wait1Msec(1000);
 
+
 	TPCJoystick joystick;
 	while (true) {
 		getJoystickSettings(joystick);
-		if(abs(joystick.joy1_y1) > 10) {
+
+		if (abs(joystick.joy1_y1) > 10) {
       motor[YAXIS] = (joystick.joy1_y1)/100.0*maxPower;
-    }
-    else                                      // Else if the readings are within the threshold...
-    {
+    } else {
       motor[YAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
     }
 
-    if(abs(joystick.joy1_x2) > 10) {
+    if (abs(joystick.joy1_x2) > 10) {
       motor[XAXIS] = (joystick.joy1_x2)/100.0*maxPower;
-    }
-    else                                      // Else if the readings are within the threshold...
-    {
+    }else {
       motor[XAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
     }
 
-    if(abs(joystick.joy1_y2) > 10) {
+    if (abs(joystick.joy1_y2) > 10) {
       motor[motorC] = (joystick.joy1_y2);
-    }
-    else                                      // Else if the readings are within the threshold...
-    {
-      motor[motorC] = 0;                   // ...the left motor is stopped with a power level of 0.
+    } else {
+      motor[motorC] = 0;
     }
 
     displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
 		displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
+
 		if (nNxtButtonPressed == 3) {
 			resetAxis(XAXIS);
 			resetAxis(YAXIS);
