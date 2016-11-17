@@ -1,5 +1,8 @@
 // Main declaration header for NXTPlotter
 
+#ifndef CONSTANTSH
+#define CONSTANTSH
+
 #pragma debuggerWindows("joystickSimple");
 #include "JoystickDriver.c"
 
@@ -15,3 +18,5 @@ const float xMax = 230;
 const float yMax = 300;
 
 const int maxPower = 25;
+
+#endif

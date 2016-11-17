@@ -1,7 +1,7 @@
 
+#ifndef CONSTANTSH
 #include "constants.h"
-
-#include "fileRead.c"
+#endif
 
 void resetAxis(int axis) {
 	nMotorEncoder[axis] = 0;
@@ -12,7 +12,7 @@ float getCurrentAxis(int axis) {
 }
 
 int checkEndStop (int axis) {
-	return sensorValue[axis];
+	return sensorValue[axis == XAXIS? XENDSTOP : YENDSTOP];
 }
 
 // Couldn't find this function, but it really should already exist.
@@ -99,52 +99,13 @@ void moveImmediate (float x, float y) {
 }
 
 void setTool (int toolNumber) {
-		motor[TOOLMOTOR] = 100;
-}
-
-
-task main() {
-
-	resetAxis(XAXIS);
-	resetAxis(YAXIS);
-
-	moveLinear(100,100);
-	wait1Msec(1000);
-	moveLinear(-100,100);
-	wait1Msec(1000);
-	moveLinear(-100,-100);
-	wait1Msec(1000);
-
-
-	TPCJoystick joystick;
-	while (true) {
-		getJoystickSettings(joystick);
-
-		if (abs(joystick.joy1_y1) > 10) {
-      motor[YAXIS] = (joystick.joy1_y1)/100.0*maxPower;
-    } else {
-      motor[YAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
-    }
-
-    if (abs(joystick.joy1_x2) > 10) {
-      motor[XAXIS] = (joystick.joy1_x2)/100.0*maxPower;
-    }else {
-      motor[XAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
-    }
-
-    if (abs(joystick.joy1_y2) > 10) {
-      motor[motorC] = (joystick.joy1_y2);
-    } else {
-      motor[motorC] = 0;
-    }
-
-    displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
-		displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
-
-		if (nNxtButtonPressed == 3) {
-			resetAxis(XAXIS);
-			resetAxis(YAXIS);
-		}
-	}
-
+		float X = getCurrentAxis(XAXIS);
+		float Y = getCurrentAxis(YAXIS);
+		nMotorEncoderTarget[TOOLMOTOR] = nMotorEncoder[TOOLMOTOR] + 45;
+		motor[TOOLMOTOR] = 25; // Should auto cut off.
+		while (nMotorRunState[TOOLMOTOR] != runStateIdle) {}
+		moveImmediate(0,0);
+		//nMotorEncoderTarget[TOOLMOTOR] = Location of new tool, + 45;
+		moveImmediate(X,Y);
+		//nMotorEncoderTarget[TOOLMOTOR] = Location of new tool;
 }

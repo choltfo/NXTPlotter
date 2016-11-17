@@ -1,4 +1,6 @@
 
+#include "baseFunctions.c"
+
 // Can't allocate in function - too big!
 // Also, there's no dynamic allocation, so we can't malloc.
 char incomingString[1024];
@@ -22,9 +24,8 @@ void trimString(char*& line) {
 	while (!(
 		(*line >= '0' && *line <= '9') ||
 		(*line >= 'a' && *line <= 'z') ||
-		(*line >= 'A' && *line <= 'Z') ||
-		(false)
-		)) {
+		(*line >= 'A' && *line <= 'Z')
+		)&& *line) {
 			line++;
 	}
 }
@@ -52,7 +53,6 @@ float parseFloat(char*& line) {
 	}
 	return num*sign;
 }
-
 
 
 void readFile(const string fileName) {
@@ -83,12 +83,31 @@ void readFile(const string fileName) {
 		char * ref = incomingString;
 		ref++; // You'd think this could be one line. Compiler doesn't like it.
 		int opCode = parseInt(ref);
+		trimString(ref);
+
+
+		if (prefix == 'G') {
+			// For G-ops, the coordinates are sorted X, Y
+			ref++; // Should be the X.
+			float comX = parseFloat(ref);
+			trimString(ref);
+			ref++; // Skip 'X'
+			float comY = parseFloat(ref);
+
+			if (opCode == 0) moveImmediate(comX,comY);
+			if (opCode == 1) moveImmediate(comX,comY);
+		}
+
+		if (prefix == 'T') {
+			// Set the tool, somehow....
+			// Assume M6 instruction?
+		}
 
 		//displayTextLine(2, incomingString);
 		// Do things per line right here!
 
 
-		wait1Msec(1000);
+		wait1Msec(1000); // DEBUG
 	}
 	// Close file
   Close(file, res);
