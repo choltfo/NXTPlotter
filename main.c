@@ -5,54 +5,98 @@
 #include "baseFunctions.c"
 
 
-task main() {
-
-	resetAxis(XAXIS);
-	resetAxis(YAXIS);
-
-	/*moveLinear(100,100);
-	wait1Msec(1000);
-	moveLinear(-100,100);
-	wait1Msec(1000);
-	moveLinear(-100,-100);
-	wait1Msec(1000);*/
-
-	setTool(2);
-	setTool(1);
-
-	wait10Msec(1000);
-	readFile("MapleLeaf.ncc");
-
-/*
-	TPCJoystick joystick;
+int mainMenu () {
+	eraseDisplay();
+	int cSelection = 0;
 	while (true) {
-		getJoystickSettings(joystick);
+		eraseDisplay();
+		displayCenteredBigTextLine(1,"Main:");
 
-		if (abs(joystick.joy1_y1) > 10) {
-      motor[YAXIS] = (joystick.joy1_y1)/100.0*maxPower;
-    } else {
-      motor[YAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
-    }
+		// 0 - exit
+		// 1 - file
+		// 2 - joystick
+		// 3 - calibrate
 
-    if (abs(joystick.joy1_x2) > 10) {
-      motor[XAXIS] = (joystick.joy1_x2)/100.0*maxPower;
-    }else {
-      motor[XAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
-    }
-
-    if (abs(joystick.joy1_y2) > 10) {
-      motor[motorC] = (joystick.joy1_y2);
-    } else {
-			motor[motorC] = 0;
+		switch (cSelection) {
+			case 0:
+				displayCenteredTextLine(3,"Exit");
+				break;
+			case 1:
+				displayCenteredTextLine(3,"File");
+				break;
+			case 2:
+				displayCenteredTextLine(3,"Joystick");
+				break;
+			case 3:
+				displayCenteredTextLine(3,"Calibrate");
+				break;
 		}
 
-		displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
-		displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
+		while (nNxtButtonPressed != -1) {}
+		while (nNxtButtonPressed == -1) {}
 
-		if (nNxtButtonPressed == 3) {
-			resetAxis(XAXIS);
-			resetAxis(YAXIS);
+		playSound(soundBlip);
+		eraseDisplay();
+		if (nNxtButtonPressed == 3) return cSelection;
+
+		// Left --, right ++
+		cSelection = (cSelection + (nNxtButtonPressed-2)*2+5)%4;
+	}
+}
+
+task main() {
+	int selection = -1;
+	while (selection != 0) { // TODO: Use constants/enums instead of literals.
+		selection = mainMenu();
+		if (selection == 1) {
+				readFile("mapleLeaf.ncc");
+		}
+		if (selection == 2) {
+			TPCJoystick joystick;
+			do {
+				getJoystickSettings(joystick);
+
+				if (abs(joystick.joy1_y1) > 10) {
+		      motor[YAXIS] = (joystick.joy1_y1)/100.0*maxPower;
+		    } else {
+		      motor[YAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
+		    }
+
+		    if (abs(joystick.joy1_x2) > 10) {
+		      motor[XAXIS] = (joystick.joy1_x2)/100.0*maxPower;
+		    }else {
+		      motor[XAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
+		    }
+
+		    if (abs(joystick.joy1_y2) > 10) {
+		      motor[motorC] = (joystick.joy1_y2);
+		    } else {
+					motor[motorC] = 0;
+				}
+
+				if (joystick.joy1_x2 > 100) {
+					nMotorEncoder[TOOLMOTOR]=0;
+					while(nMotorEncoder[TOOLMOTOR]<90) {
+						motor[TOOLMOTOR]=50;
+					}
+					motor[TOOLMOTOR]=0;
+					nMotorEncoder[TOOLMOTOR]=0;
+				}
+
+				displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
+				displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
+				displayTextLine(3,"B: %X",joy1Btn(Btn1));
+				displayTextLine(4,"Xin: %i",joystick.joy1_x1);
+				displayTextLine(5,"Yin: %i",joystick.joy1_x2);
+
+				if (nNxtButtonPressed == 3) {
+					resetAxis(XAXIS);
+					resetAxis(YAXIS);
+				}
+
+			} while (!joy1Btn(1));
+
 		}
 	}
-*/
+
 }

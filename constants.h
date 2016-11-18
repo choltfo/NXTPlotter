@@ -3,8 +3,8 @@
 #ifndef CONSTANTSH
 #define CONSTANTSH
 
-//#pragma debuggerWindows("joystickSimple");
-//#include "JoystickDriver.c"
+#pragma debuggerWindows("joystickSimple");
+#include "JoystickDriver.c"
 
 #define XAXIS motorA
 #define YAXIS motorB
