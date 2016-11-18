@@ -20,6 +20,7 @@ int parseInt(char*& line) {
 	return num*sign;
 }
 
+// Trims anything that's not a letter or a numer,
 void trimString(char*& line) {
 	while (!(
 		(*line >= '0' && *line <= '9') ||
@@ -107,7 +108,7 @@ void readFile(const string fileName) {
 		// Do things per line right here!
 
 
-		wait1Msec(1000); // DEBUG
+		//wait1Msec(1000); // DEBUG
 	}
 	// Close file
   Close(file, res);

@@ -10,14 +10,20 @@ task main() {
 	resetAxis(XAXIS);
 	resetAxis(YAXIS);
 
-	moveLinear(100,100);
+	/*moveLinear(100,100);
 	wait1Msec(1000);
 	moveLinear(-100,100);
 	wait1Msec(1000);
 	moveLinear(-100,-100);
-	wait1Msec(1000);
+	wait1Msec(1000);*/
 
+	setTool(2);
+	setTool(1);
 
+	wait10Msec(1000);
+	readFile("MapleLeaf.ncc");
+
+/*
 	TPCJoystick joystick;
 	while (true) {
 		getJoystickSettings(joystick);
@@ -48,5 +54,5 @@ task main() {
 			resetAxis(YAXIS);
 		}
 	}
-
+*/
 }

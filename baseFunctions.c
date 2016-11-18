@@ -7,12 +7,12 @@ void resetAxis(int axis) {
 	nMotorEncoder[axis] = 0;
 }
 
-float getCurrentAxis(int axis) {
+float getCurrentAxis(tMotor axis) {
 	return nMotorEncoder[axis]*mmPerDeg;
 }
 
-int checkEndStop (int axis) {
-	return sensorValue[axis == XAXIS? XENDSTOP : YENDSTOP];
+int checkEndStop (tMotor axis) {
+	return SensorValue[axis == XAXIS? XENDSTOP : YENDSTOP];
 }
 
 // Couldn't find this function, but it really should already exist.
@@ -96,6 +96,15 @@ void moveImmediate (float x, float y) {
 	motor[XAXIS] = 0;
 	motor[YAXIS] = 0;
 	nSyncedMotors = synchNone;
+}
+
+void setToolRotor (int location) {
+	location += 3600;
+	int curLoc = nMotorEncoder[TOOLMOTOR]%360+3600;
+	int delta = location - curLoc;
+	delta %= 360;
+	motor[TOOLMOTOR] = delta > 0 ? 50 : -50;
+	while (nMotorEncoder(TOOLMOTOR)*sgn(delta) > location*sgn(delta)) {}
 }
 
 void setTool (int toolNumber) {
