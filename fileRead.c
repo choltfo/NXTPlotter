@@ -96,7 +96,7 @@ void readFile(const string fileName) {
 			float comY = parseFloat(ref);
 
 			if (opCode == 0) moveImmediate(comX,comY);
-			if (opCode == 1) moveImmediate(comX,comY);
+			if (opCode == 1) moveLinear(comX,comY);
 		}
 
 		if (prefix == 'T') {

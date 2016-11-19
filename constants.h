@@ -17,6 +17,6 @@ const float mmPerDeg = 0.32; // Distance per encoder count.
 const float xMax = 230;
 const float yMax = 300;
 
-const int maxPower = 100;
+const int maxPower = 25;
 
 #endif
