@@ -1,7 +1,7 @@
 // Main declaration header for NXTPlotter
 
-#ifndef CONSTANTSH
-#define CONSTANTSH
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 #pragma debuggerWindows("joystickSimple");
 #include "JoystickDriver.c"
