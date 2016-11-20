@@ -21,6 +21,29 @@ float min(float a, float b) {
     return (b<a)?b:a;
 }
 
+int getTool () {
+	if (abs(nMotorEncoder[TOOLMOTOR]) > 60) {
+		if (nMotorEncoder[TOOLMOTOR] > 0) return 1;
+			else return 2;
+	} else return 0;
+}
+
+void setTool (int toolNumber) {
+    if (getTool() == toolNumber) return;
+    if (toolNumber == 2) {
+        motor[TOOLMOTOR] = -50;
+        while (getTool() != toolNumber) {}
+    }
+    if (toolNumber == 1) {
+        motor[TOOLMOTOR] = 50;
+        while (getTool() != toolNumber) {}
+    }
+    if (toolNumber == 0) {
+        motor[TOOLMOTOR] = getTool() == 2 ? 50 : -50;
+        while (abs(nMotorEncoder[TOOLMOTOR]) > 20) {}
+    }
+}
+
 // G1 - move the tool in a straight line.
 void moveLinear (float x, float y) {
     motor[XAXIS] = 0;

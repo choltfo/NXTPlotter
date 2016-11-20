@@ -62,7 +62,7 @@ void readFile(const string fileName) {
     short size;
 
     // RobotC OpenRead file.
-    // "I did not make these..." functions.
+    // I did not make these functions.
     OpenRead(file, res, fileName, size);
 
     // Read line.
@@ -100,8 +100,7 @@ void readFile(const string fileName) {
         }
 
         if (prefix == 'T') {
-            // Set the tool, somehow....
-            // Assume M6 instruction?
+            setTool(opCode);
         }
 
         //displayTextLine(2, incomingString);
