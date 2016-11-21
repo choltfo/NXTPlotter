@@ -47,7 +47,10 @@ int mainMenu () {
 task main() {
     int selection = -1;
     while (selection != 0) { // TODO: Use constants/enums instead of literals.
+
         selection = mainMenu();
+        while (nNXTButtonPressed != -1){}
+
         if (selection == 1) {
             readFile("mapleLeaf.ncc");
         }
@@ -57,7 +60,7 @@ task main() {
                 getJoystickSettings(joystick);
 
                 if (abs(joystick.joy1_y1) > 10) {
-                    motor[YAXIS] = (joystick.joy1_y1)/100.0*maxPower;
+                    motor[YAXIS] = (-joystick.joy1_y1)/100.0*maxPower;
                 } else {
                     motor[YAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
                 }
@@ -68,33 +71,19 @@ task main() {
                     motor[XAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
                 }
 
-                if (abs(joystick.joy1_y2) > 10) {
-                    motor[motorC] = (joystick.joy1_y2);
-                } else {
-                    motor[motorC] = 0;
-                }
-
-                if (joystick.joy1_x2 > 100) {
-                    nMotorEncoder[TOOLMOTOR]=0;
-                    while(nMotorEncoder[TOOLMOTOR]<90) {
-                        motor[TOOLMOTOR]=50;
-                    }
-                    motor[TOOLMOTOR]=0;
-                    nMotorEncoder[TOOLMOTOR]=0;
-                }
 
                 displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
                 displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
                 displayTextLine(3,"B: %X",joy1Btn(Btn1));
-                displayTextLine(4,"Xin: %i",joystick.joy1_x1);
+                displayTextLine(4,"Xin: %i",joystick.joy1_y2);
                 displayTextLine(5,"Yin: %i",joystick.joy1_x2);
 
-                if (nNxtButtonPressed == 3) {
+                if (nNxtButtonPressed != -1) {
                     resetAxis(XAXIS);
                     resetAxis(YAXIS);
                 }
 
-            } while (!joy1Btn(1));
+            } while (nNXTButtonPressed != 3);
         }
     }
 }

@@ -117,24 +117,3 @@ void moveImmediate (float x, float y) {
     motor[YAXIS] = 0;
     nSyncedMotors = synchNone;
 }
-
-void setToolRotor (int location) {
-    location += 3600;
-    int curLoc = nMotorEncoder[TOOLMOTOR]%360+3600;
-    int delta = location - curLoc;
-    delta %= 360;
-    motor[TOOLMOTOR] = delta > 0 ? 50 : -50;
-    while (nMotorEncoder(TOOLMOTOR)*sgn(delta) > location*sgn(delta)) {}
-}
-
-void setTool (int toolNumber) {
-    float X = getCurrentAxis(XAXIS);
-    float Y = getCurrentAxis(YAXIS);
-    nMotorEncoderTarget[TOOLMOTOR] = nMotorEncoder[TOOLMOTOR] + 45;
-    motor[TOOLMOTOR] = 25; // Should auto cut off.
-    while (nMotorRunState[TOOLMOTOR] != runStateIdle) {}
-    moveImmediate(0,0);
-    //nMotorEncoderTarget[TOOLMOTOR] = Location of new tool, + 45;
-    moveImmediate(X,Y);
-    //nMotorEncoderTarget[TOOLMOTOR] = Location of new tool;
-}
