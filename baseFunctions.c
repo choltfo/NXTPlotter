@@ -22,10 +22,11 @@ float min(float a, float b) {
 }
 
 int getTool () {
-	if (abs(nMotorEncoder[TOOLMOTOR]) > 60) {
-		if (nMotorEncoder[TOOLMOTOR] > 0) return 1;
-			else return 2;
-	} else return 0;
+    int stable = sgn(abs(nMotorEncoder[TOOLMOTOR]) - 60 ); //Positive if above 60 deg.
+    if (abs(nMotorEncoder[TOOLMOTOR]) < 30) return 0; // Neutral state is zero.
+    int tool = nMotorEncoder[TOOLMOTOR] < 0 ? 2 : 1;
+
+	return stable*tool;
 }
 
 void setTool (int toolNumber) {
@@ -39,9 +40,10 @@ void setTool (int toolNumber) {
         while (getTool() != toolNumber) {}
     }
     if (toolNumber == 0) {
-        motor[TOOLMOTOR] = getTool() == 2 ? 50 : -50;
+        motor[TOOLMOTOR] = abs(getTool()) == 2 ? 50 : -50;
         while (abs(nMotorEncoder[TOOLMOTOR]) > 20) {}
     }
+    motor[TOOLMOTOR] = 0;
 }
 
 // G1 - move the tool in a straight line.
@@ -116,4 +118,39 @@ void moveImmediate (float x, float y) {
     motor[XAXIS] = 0;
     motor[YAXIS] = 0;
     nSyncedMotors = synchNone;
+}
+
+// Calibrates a single axis (if true calibrate the x-axis, false calibrate the y-axis)
+void calibrateAxis (bool xAxisMotor)
+{
+	if (xAxisMotor){
+		motor[XAXIS] = maxPower;
+		while (SensorValue[XENDSTOP] != 6){}
+		motor[XAXIS] = 0;
+		resetAxis(XAXIS);
+	} else {
+		motor[YAXIS] = maxPower;
+		while (SensorValue[YENDSTOP] != 1){}
+		motor[YAXIS] = 0;
+		resetAxis(YAXIS);
+	}
+}
+// Calibrates both axes
+void calibrate ()
+{
+	SensorType[YENDSTOP] =  sensorTouch;
+	SensorType[XENDSTOP] = sensorColorNxtFULL;
+	setTool(0);
+	motor[XAXIS] = maxPower;
+	motor[YAXIS] = maxPower;
+	while (SensorValue[YENDSTOP] != 1 && SensorValue[XENDSTOP] != 6){}
+	if (SensorValue[YENDSTOP] == 1){
+		motor[YAXIS] = 0;
+		resetAxis(YAXIS);
+		calibrateAxis (true);
+	}	else {
+		motor[XAXIS] = 0;
+		resetAxis(XAXIS);
+		calibrateAxis (false);
+	}
 }
