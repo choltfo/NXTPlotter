@@ -1,15 +1,23 @@
 #include "constants.h"
 
-void resetAxis(int axis) {
+void resetAxis(tMotor axis) {
     nMotorEncoder[axis] = 0;
 }
 
+void setAxis (tMotor axis, float value) {
+    nMotorEncoder[axis] = value/mmPerDeg;
+}
+
 float getCurrentAxis(tMotor axis) {
-    return nMotorEncoder[axis]*mmPerDeg;
+    return nMotorEncoder[axis]*mmPerDeg - ((getTool() == 2) ? toolSeperation : 0);
 }
 
 int checkEndStop (tMotor axis) {
-    return SensorValue[axis == XAXIS? XENDSTOP : YENDSTOP];
+    if (axis == YAXIS) {
+	    return SensorValue[YENDSTOP] == 6; // White
+	} else {
+	    return SensorValue[XENDSTOP]; // Pressed
+	}
 }
 
 // Couldn't find this function, but it really should already exist.
@@ -29,22 +37,7 @@ int getTool () {
 	return stable*tool;
 }
 
-void setTool (int toolNumber) {
-    if (getTool() == toolNumber) return;
-    if (toolNumber == 2) {
-        motor[TOOLMOTOR] = -50;
-        while (getTool() != toolNumber) {}
-    }
-    if (toolNumber == 1) {
-        motor[TOOLMOTOR] = 50;
-        while (getTool() != toolNumber) {}
-    }
-    if (toolNumber == 0) {
-        motor[TOOLMOTOR] = abs(getTool()) == 2 ? 50 : -50;
-        while (abs(nMotorEncoder[TOOLMOTOR]) > 20) {}
-    }
-    motor[TOOLMOTOR] = 0;
-}
+
 
 // G1 - move the tool in a straight line.
 void moveLinear (float x, float y) {
@@ -120,37 +113,61 @@ void moveImmediate (float x, float y) {
     nSyncedMotors = synchNone;
 }
 
+void setTool (int toolNumber) {
+    if (getTool() == toolNumber) return;
+
+    float curX = getCurrentAxis(XAXIS);
+    float curY = getCurrentAxis(YAXIS)
+
+    if (toolNumber == 0) {
+        motor[TOOLMOTOR] = abs(getTool()) == 2 ? 50 : -50;
+        while (abs(nMotorEncoder[TOOLMOTOR]) > 20) {}
+    }
+    setTool(0); // Retract tool, then change offset, then change tool.
+    playSound(soundUpwardTones);
+    moveImmediate(curX,curY); // Move to the position that puts the tool where it should be.
+    playSound(soundDownwardTones);
+    if (toolNumber == 2) {
+        motor[TOOLMOTOR] = -50;
+        while (getTool() != toolNumber) {}
+    }
+    if (toolNumber == 1) {
+        motor[TOOLMOTOR] = 50;
+        while (getTool() != toolNumber) {}
+    }
+    motor[TOOLMOTOR] = 0;
+}
+
 // Calibrates a single axis (if true calibrate the x-axis, false calibrate the y-axis)
 void calibrateAxis (bool xAxisMotor)
 {
 	if (xAxisMotor){
-		motor[XAXIS] = maxPower;
-		while (SensorValue[XENDSTOP] != 6){}
+		motor[XAXIS] = maxPower/2;
+		while (!checkEndStop(XAXIS)){}
 		motor[XAXIS] = 0;
-		resetAxis(XAXIS);
+		setAxis(XAXIS,xmax);
 	} else {
-		motor[YAXIS] = maxPower;
-		while (SensorValue[YENDSTOP] != 1){}
+		motor[YAXIS] = maxPower/2;
+		while (!checkEndStop(YAXIS)){}
 		motor[YAXIS] = 0;
-		resetAxis(YAXIS);
+		setAxis(YAXIS,ymax);
 	}
 }
 // Calibrates both axes
 void calibrate ()
 {
-	SensorType[YENDSTOP] =  sensorTouch;
-	SensorType[XENDSTOP] = sensorColorNxtFULL;
-	setTool(0);
-	motor[XAXIS] = maxPower;
-	motor[YAXIS] = maxPower;
-	while (SensorValue[YENDSTOP] != 1 && SensorValue[XENDSTOP] != 6){}
-	if (SensorValue[YENDSTOP] == 1){
+	SensorType[XENDSTOP] = sensorTouch;
+	SensorType[YENDSTOP] = sensorColorNxtFULL;
+	motor[XAXIS] = maxPower/2; // Somewhat slowly, to preserve precision.
+	motor[YAXIS] = maxPower/2;
+	while (!checkEndStop(XAXIS) && !checkEndStop(YAXIS)){}
+	if (checkEndStop(YAXIS)){
 		motor[YAXIS] = 0;
-		resetAxis(YAXIS);
+		setAxis(YAXIS,ymax);
 		calibrateAxis (true);
 	}	else {
 		motor[XAXIS] = 0;
-		resetAxis(XAXIS);
+		setAxis(XAXIS,xmax);
 		calibrateAxis (false);
 	}
 }

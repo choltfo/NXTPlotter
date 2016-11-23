@@ -51,24 +51,32 @@ task main() {
         selection = mainMenu();
         while (nNXTButtonPressed != -1){}
 
+        if (selection == 3) {
+            setTool(0)
+            calibrate();
+            moveImmediate(-xmax,-ymax);
+            resetAxis(XAXIS);
+            resetAxis(YAXIS);
+        }
+
         if (selection == 1) {
-            readFile("mapleLeaf.ncc");
+            readFile("ToolTest.ncc");
         }
         if (selection == 2) {
             TPCJoystick joystick;
             do {
                 getJoystickSettings(joystick);
 
-                if (abs(joystick.joy1_y1) > 10) {
-                    motor[YAXIS] = (-joystick.joy1_y1)/100.0*maxPower;
+                if (abs(joystick.joy1_x1) > 10) {
+                    motor[XAXIS] = (-joystick.joy1_y1)/100.0*maxPower;
                 } else {
-                    motor[YAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
+                    motor[XAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
                 }
 
                 if (abs(joystick.joy1_x2) > 10) {
-                    motor[XAXIS] = (joystick.joy1_x2)/100.0*maxPower;
+                    motor[YAXIS] = (joystick.joy1_x2)/100.0*maxPower;
                 }else {
-                    motor[XAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
+                    motor[YAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
                 }
 
 
@@ -78,7 +86,7 @@ task main() {
                 displayTextLine(4,"Xin: %i",joystick.joy1_y2);
                 displayTextLine(5,"Yin: %i",joystick.joy1_x2);
 
-                if (nNxtButtonPressed != -1) {
+                if (nNxtButtonPressed != -1 && nNxtButtonPressed != 3) {
                     resetAxis(XAXIS);
                     resetAxis(YAXIS);
                 }
