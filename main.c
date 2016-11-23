@@ -54,13 +54,10 @@ task main() {
         if (selection == 3) {
             setTool(0)
             calibrate();
-            moveImmediate(-xmax,-ymax);
-            resetAxis(XAXIS);
-            resetAxis(YAXIS);
         }
 
         if (selection == 1) {
-            readFile("ToolTest.ncc");
+            readFile("TestG.ncc");
         }
         if (selection == 2) {
             TPCJoystick joystick;
@@ -70,13 +67,13 @@ task main() {
                 if (abs(joystick.joy1_x1) > 10) {
                     motor[XAXIS] = (-joystick.joy1_y1)/100.0*maxPower;
                 } else {
-                    motor[XAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
+                    motor[XAXIS] = 0;
                 }
 
                 if (abs(joystick.joy1_x2) > 10) {
                     motor[YAXIS] = (joystick.joy1_x2)/100.0*maxPower;
                 }else {
-                    motor[YAXIS] = 0;                   // ...the left motor is stopped with a power level of 0.
+                    motor[YAXIS] = 0;
                 }
 
 

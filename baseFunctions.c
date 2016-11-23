@@ -124,9 +124,9 @@ void setTool (int toolNumber) {
         while (abs(nMotorEncoder[TOOLMOTOR]) > 20) {}
     }
     setTool(0); // Retract tool, then change offset, then change tool.
-    playSound(soundUpwardTones);
+    playSound(soundBeepBeep);
     moveImmediate(curX,curY); // Move to the position that puts the tool where it should be.
-    playSound(soundDownwardTones);
+
     if (toolNumber == 2) {
         motor[TOOLMOTOR] = -50;
         while (getTool() != toolNumber) {}
@@ -170,4 +170,7 @@ void calibrate ()
 		setAxis(XAXIS,xmax);
 		calibrateAxis (false);
 	}
+	moveImmediate(-xmax,-ymax);
+    resetAxis(XAXIS);
+    resetAxis(YAXIS);
 }

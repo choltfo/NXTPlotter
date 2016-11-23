@@ -111,4 +111,5 @@ void readFile(const string fileName) {
     }
     // Close file
     Close(file, res);
+    setTool(0);
 }
