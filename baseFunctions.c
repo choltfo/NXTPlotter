@@ -8,6 +8,14 @@ void setAxis (tMotor axis, float value) {
     nMotorEncoder[axis] = value/mmPerDeg;
 }
 
+int getTool () {
+    int stable = sgn(abs(nMotorEncoder[TOOLMOTOR]) - 60 ); //Positive if above 60 deg.
+    if (abs(nMotorEncoder[TOOLMOTOR]) < 30) return 0; // Neutral state is zero.
+    int tool = nMotorEncoder[TOOLMOTOR] < 0 ? 2 : 1;
+
+	return stable*tool;
+}
+
 float getCurrentAxis(tMotor axis) {
     return nMotorEncoder[axis]*mmPerDeg - ((getTool() == 2) ? toolSeperation : 0);
 }
@@ -29,13 +37,7 @@ float min(float a, float b) {
     return (b<a)?b:a;
 }
 
-int getTool () {
-    int stable = sgn(abs(nMotorEncoder[TOOLMOTOR]) - 60 ); //Positive if above 60 deg.
-    if (abs(nMotorEncoder[TOOLMOTOR]) < 30) return 0; // Neutral state is zero.
-    int tool = nMotorEncoder[TOOLMOTOR] < 0 ? 2 : 1;
 
-	return stable*tool;
-}
 
 
 
@@ -72,9 +74,9 @@ void moveLinear (float x, float y) {
 
     while(nMotorRunState[XAXIS] != runStateIdle || nMotorRunState[YAXIS] != runStateIdle) {
         if (getCurrentAxis(XAXIS)*sgn(deltaX) > x*sgn(deltaX))
-        motor[XAXIS] = 0;
+            motor[XAXIS] = 0;
         if (getCurrentAxis(YAXIS)*sgn(deltaY) > y*sgn(deltaY))
-        motor[YAXIS] = 0;
+            motor[YAXIS] = 0;
         displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
         displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
     }
@@ -117,7 +119,7 @@ void setTool (int toolNumber) {
     if (getTool() == toolNumber) return;
 
     float curX = getCurrentAxis(XAXIS);
-    float curY = getCurrentAxis(YAXIS)
+    float curY = getCurrentAxis(YAXIS);
 
     if (toolNumber == 0) {
         motor[TOOLMOTOR] = abs(getTool()) == 2 ? 50 : -50;
@@ -145,12 +147,12 @@ void calibrateAxis (bool xAxisMotor)
 		motor[XAXIS] = maxPower/2;
 		while (!checkEndStop(XAXIS)){}
 		motor[XAXIS] = 0;
-		setAxis(XAXIS,xmax);
+		setAxis(XAXIS,xMax);
 	} else {
 		motor[YAXIS] = maxPower/2;
 		while (!checkEndStop(YAXIS)){}
 		motor[YAXIS] = 0;
-		setAxis(YAXIS,ymax);
+		setAxis(YAXIS,yMax);
 	}
 }
 // Calibrates both axes
@@ -163,14 +165,14 @@ void calibrate ()
 	while (!checkEndStop(XAXIS) && !checkEndStop(YAXIS)){}
 	if (checkEndStop(YAXIS)){
 		motor[YAXIS] = 0;
-		setAxis(YAXIS,ymax);
+		setAxis(YAXIS,yMax);
 		calibrateAxis (true);
 	}	else {
 		motor[XAXIS] = 0;
-		setAxis(XAXIS,xmax);
+		setAxis(XAXIS,xMax);
 		calibrateAxis (false);
 	}
-	moveImmediate(-xmax,-ymax);
+	moveImmediate(-xMax,-yMax);
     resetAxis(XAXIS);
     resetAxis(YAXIS);
 }
