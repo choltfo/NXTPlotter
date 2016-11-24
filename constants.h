@@ -19,6 +19,6 @@ const float yMax = 260; // Should be 280
 
 const float toolSeperation = 33.0;
 
-const int maxPower = 25;
+const int maxPower = 20;
 
 #endif
