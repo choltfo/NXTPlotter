@@ -4,6 +4,44 @@
 #include "fileRead.c"
 #include "baseFunctions.c"
 
+void fileMenu (string & fileName) {
+	// Find all .ncc files and arrange them in a string array
+	TFileHandle fHandle;
+	TFileIOResult IOResult;
+	string fNames[32];
+	short fSize = 0;
+
+
+	int i = 1;
+	FindFirstFile(fHandle, IOResult, "*.ncc", fNames[0], fSize);
+	while (IOResult != ioRsltNoMoreFiles && i < 32){
+	    fNames[i] = fNames[i-1];
+		FindNextFile(fHandle, IOResult, fNames[i], fSize);
+		i++;
+	}
+	// List all .ncc files in a menu
+    eraseDisplay();
+    int cSelection = 0;
+    while (true) {
+        eraseDisplay();
+        displayCenteredBigTextLine(1,"Files: %i",cSelection);
+
+		displayCenteredTextLine(3, "%s, %i",fNames[cSelection],i);
+
+       	while (nNxtButtonPressed != -1) {}
+       	while (nNxtButtonPressed == -1) {}
+
+       	playSound(soundBlip);
+       	eraseDisplay();
+       	if (nNxtButtonPressed == 3) {
+	      fileName = fNames[cSelection];
+		  return;
+		}
+
+       	// Left --, right ++
+       	cSelection = (cSelection + ((nNxtButtonPressed-2)*2+i+1))%i;
+    }
+}
 
 int mainMenu () {
     eraseDisplay();
@@ -49,15 +87,19 @@ task main() {
     while (selection != 0) { // TODO: Use constants/enums instead of literals.
 
         selection = mainMenu();
-        while (nNXTButtonPressed != -1){}
+        while (nNxtButtonPressed != -1){}
 
         if (selection == 3) {
-            setTool(0)
+            setTool(0);
             calibrate();
         }
 
         if (selection == 1) {
-            readFile("TestG.ncc");
+            /*string file = "";
+            fileMenu(file);
+            displayCenteredBigTextLine(1,file);
+            wait10Msec(1000);*/
+            readFile("MapleLeaf.ncc")
         }
         if (selection == 2) {
             TPCJoystick joystick;
@@ -88,7 +130,7 @@ task main() {
                     resetAxis(YAXIS);
                 }
 
-            } while (nNXTButtonPressed != 3);
+            } while (nNxtButtonPressed != 3);
         }
     }
 }
