@@ -4,8 +4,10 @@
 #include "fileRead.c"
 #include "baseFunctions.c"
 
-void fileMenu (string & fileName) {
-	// Find all .ncc files and arrange them in a string array
+bool fileMenu (string & fileName) {
+    nNxtExitClicks = 2;
+
+    // Find all .ncc files and arrange them in a string array
 	TFileHandle fHandle;
 	TFileIOResult IOResult;
 	string fNames[32];
@@ -14,7 +16,7 @@ void fileMenu (string & fileName) {
 
 	int i = 1;
 	FindFirstFile(fHandle, IOResult, "*.ncc", fNames[0], fSize);
-	while (IOResult != ioRsltNoMoreFiles && i < 32){
+	while (IOResult == ioRsltSuccess && i < 32){
 	    fNames[i] = fNames[i-1];
 		FindNextFile(fHandle, IOResult, fNames[i], fSize);
 		i++;
@@ -24,9 +26,9 @@ void fileMenu (string & fileName) {
     int cSelection = 0;
     while (true) {
         eraseDisplay();
-        displayCenteredBigTextLine(1,"Files: %i",cSelection);
+        displayCenteredBigTextLine(1,"Files: %i",i);
 
-		displayCenteredTextLine(3, "%s, %i",fNames[cSelection],i);
+		displayCenteredTextLine(3, "%s",fNames[cSelection]);
 
        	while (nNxtButtonPressed != -1) {}
        	while (nNxtButtonPressed == -1) {}
@@ -35,8 +37,11 @@ void fileMenu (string & fileName) {
        	eraseDisplay();
        	if (nNxtButtonPressed == 3) {
 	      fileName = fNames[cSelection];
-		  return;
+		  return true;
 		}
+		if (nNxtButtonPressed == 0) {
+		  return false;
+	    }
 
        	// Left --, right ++
        	cSelection = (cSelection + ((nNxtButtonPressed-2)*2+i+1))%i;
@@ -95,11 +100,11 @@ task main() {
         }
 
         if (selection == 1) {
-            /*string file = "";
-            fileMenu(file);
-            displayCenteredBigTextLine(1,file);
-            wait10Msec(1000);*/
-            readFile("MapleLeaf.ncc")
+            string file = "";
+            if (fileMenu(file)) {
+	            readFile(file);
+	            playSound(soundBeepBeep);
+	        }
         }
         if (selection == 2) {
             TPCJoystick joystick;
@@ -118,12 +123,31 @@ task main() {
                     motor[YAXIS] = 0;
                 }
 
+                if (abs(joystick.joy1_y2) > 100) {
+                    if (joystick.joy1_y2 > 0) {
+                        if (abs(getTool()) == 2)
+                            setTool(0);
+                        else if (getTool() == 0 || getTool() == -1)
+                            setTool(1);
+                    } else {
+                        if (abs(getTool()) == 1)
+                            setTool(0);
+                        else if (getTool() == 0 || getTool() == -2)
+                            setTool(2);
+                    }
+                    while(abs(joystick.joy1_y2) > 10) {
+	                    getJoystickSettings(joystick);
+	                }
+                }
+
+
+
 
                 displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
                 displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
-                displayTextLine(3,"B: %X",joy1Btn(Btn1));
-                displayTextLine(4,"Xin: %i",joystick.joy1_y2);
-                displayTextLine(5,"Yin: %i",joystick.joy1_x2);
+                displayTextLine(3,"T: %i",getTool());
+                displayTextLine(4,"y1: %i",joystick.joy1_y1);
+                displayTextLine(5,"y2: %i",joystick.joy1_y2);
 
                 if (nNxtButtonPressed != -1 && nNxtButtonPressed != 3) {
                     resetAxis(XAXIS);
