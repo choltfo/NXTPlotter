@@ -66,7 +66,9 @@ void readFile(const string fileName) {
     OpenRead(file, res, fileName, size);
 
     // Read line.
+    int line = 0;
     while (res == ioRsltSuccess) {
+        line++;
         char output = 0x0;
         int i = 0;
         ReadByte(file,res,output);
@@ -95,8 +97,11 @@ void readFile(const string fileName) {
             ref++; // Skip 'X'
             float comY = parseFloat(ref);
 
+            displayTextLine (1,"%s",fileName);
+            displayTextLine (4,"Line: %i",line);
             if (opCode == 0) moveImmediate(comX,comY);
             if (opCode == 1) moveLinear(comX,comY);
+
         }
 
         if (prefix == 'T') {

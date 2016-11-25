@@ -17,7 +17,7 @@ int getTool () {
 }
 
 float getCurrentAxis(tMotor axis) {
-    return nMotorEncoder[axis]*mmPerDeg - ((getTool() == 2) ? toolSeperation : 0);
+    return nMotorEncoder[axis]*mmPerDeg - ((abs(getTool()) != 2 && axis == XAXIS) ? toolSeperation : 0);
 }
 
 int checkEndStop (tMotor axis) {
@@ -77,8 +77,8 @@ void moveLinear (float x, float y) {
             motor[XAXIS] = 0;
         if (getCurrentAxis(YAXIS)*sgn(deltaY) > y*sgn(deltaY))
             motor[YAXIS] = 0;
-        displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
-        displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
+        displayTextLine(2,"X: %f",getCurrentAxis(XAXIS));
+        displayTextLine(3,"Y: %f",getCurrentAxis(YAXIS));
     }
 
 
@@ -104,8 +104,8 @@ void moveImmediate (float x, float y) {
         motor[XAXIS] = 0;
         if (getCurrentAxis(YAXIS)*sgn(deltaY) > y*sgn(deltaY))
         motor[YAXIS] = 0;
-        displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
-        displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
+        displayTextLine(2,"X: %f",getCurrentAxis(XAXIS));
+        displayTextLine(3,"Y: %f",getCurrentAxis(YAXIS));
     }
 
 
@@ -124,17 +124,20 @@ void setTool (int toolNumber) {
     if (toolNumber == 0) {
         motor[TOOLMOTOR] = abs(getTool()) == 2 ? 50 : -50;
         while (abs(nMotorEncoder[TOOLMOTOR]) > 20) {}
+        motor[TOOLMOTOR] = 0;
+        moveImmediate(curX,curY); // Move to the position that puts the tool where it should be.
     }
-    setTool(0); // Retract tool, then change offset, then change tool.
-    playSound(soundBeepBeep);
-    moveImmediate(curX,curY); // Move to the position that puts the tool where it should be.
+    //setTool(0); // Retract tool, then change offset, then change tool.
+    playSound(soundShortBlip);
+
+    moveImmediate(curX-(toolNumber == 2?toolSeperation:0),curY); // Move to the position that puts the tool where it should be.
 
     if (toolNumber == 2) {
-        motor[TOOLMOTOR] = -50;
+        motor[TOOLMOTOR] = -25;
         while (getTool() != toolNumber) {}
     }
     if (toolNumber == 1) {
-        motor[TOOLMOTOR] = 50;
+        motor[TOOLMOTOR] = 25;
         while (getTool() != toolNumber) {}
     }
     motor[TOOLMOTOR] = 0;
