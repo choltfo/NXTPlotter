@@ -8,7 +8,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-// Jotstick required.
+// Tells the debugger that the joystick menu will be opened
 #pragma debuggerWindows("joystickSimple");
 #include "JoystickDriver.c"
 

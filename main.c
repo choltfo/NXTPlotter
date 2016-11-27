@@ -139,7 +139,7 @@ void joystickControl () {
 
 
 
-
+		// Debug info. 
         displayTextLine(1,"X: %f",getCurrentAxis(XAXIS));
         displayTextLine(2,"Y: %f",getCurrentAxis(YAXIS));
         displayTextLine(3,"T: %i",getTool());

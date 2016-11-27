@@ -28,7 +28,7 @@ int parseInt(char*& line) {
 }
 
 // Charles H
-// Trims anything that's not a letter or a numer,
+// Trims anything that's not a letter or a number,
 void trimString(char*& line) {
     while (!(
         (*line >= '0' && *line <= '9') ||
