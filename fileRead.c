@@ -1,11 +1,18 @@
+// Final project, group 16
+// Deus Ex Machina, a plot device
+// November 2016
+// RobotC code
+
+// A collection of functions for reading G-code files.
 
 #include "baseFunctions.c"
 
-// Can't allocate in function - too big!
+// Can't allocate inside function - too big!
 // Also, there's no dynamic allocation, so we can't malloc.
 char incomingString[1024];
 
-// Unsafe, but all input is sanitized
+// Charles H
+// Converts an integer represented in a string to an int.
 int parseInt(char*& line) {
     int sign = 1;
     int num = 0;
@@ -20,6 +27,7 @@ int parseInt(char*& line) {
     return num*sign;
 }
 
+// Charles H
 // Trims anything that's not a letter or a numer,
 void trimString(char*& line) {
     while (!(
@@ -31,6 +39,8 @@ void trimString(char*& line) {
     }
 }
 
+// Charles H
+// Converts a float represented in a string to a int.
 float parseFloat(char*& line) {
     int sign = 1;
     float num = 0;
@@ -55,18 +65,21 @@ float parseFloat(char*& line) {
     return num*sign;
 }
 
-
+// Charles H
+// Read through a G-code file, filename (xyz.ncc), and act on it.
 void readFile(const string fileName) {
     TFileHandle file;
     TFileIOResult res = ioRsltSuccess;
     short size;
 
+    time1[T1] = 0;
+
     // RobotC OpenRead file.
     // I did not make these functions.
     OpenRead(file, res, fileName, size);
 
-    // Read line.
     int line = 0;
+	// Both checks if the file opens and runs through every line.
     while (res == ioRsltSuccess) {
         line++;
         char output = 0x0;
@@ -74,27 +87,30 @@ void readFile(const string fileName) {
         ReadByte(file,res,output);
         incomingString[i] = output;
 
+        // Read line.
         while (output != '\n' && res == ioRsltSuccess) {
             ++i;
             ReadByte(file,res,output);
             incomingString[i] = output;
         }
 
-        // parseGCode(incomingString);
-
+        // Perform actual G-code parsing:
         char prefix = incomingString[0];
         char * ref = incomingString;
         ref++; // You'd think this could be one line. Compiler doesn't like it.
         int opCode = parseInt(ref);
         trimString(ref);
 
-
+        // Movement command.
         if (prefix == 'G') {
             // For G-ops, the coordinates are sorted X, Y
+            // EG: G1 X123.34 Y126.43
             ref++; // Should be the X.
+
+            // Get coorindates for this command.
             float comX = parseFloat(ref);
             trimString(ref);
-            ref++; // Skip 'X'
+            ref++; // Skip 'Y'
             float comY = parseFloat(ref);
 
             displayTextLine (1,"%s",fileName);
@@ -104,17 +120,22 @@ void readFile(const string fileName) {
 
         }
 
+        // Tool change command.
+        // Technically, should store the tool number and wait for an M6.
+        // However, our path generator never puts a T# anywhere except before
+        // an M6, saving us some logic on this end.
         if (prefix == 'T') {
             setTool(opCode);
         }
-
-        //displayTextLine(2, incomingString);
-        // Do things per line right here!
-
-
-        //wait1Msec(1000); // DEBUG
     }
+
     // Close file
     Close(file, res);
+
+    displayCenteredBigTextLine(4,"%i s",time1[T1]/1000);
+    wait1Msec(5000);
+    eraseDisplay();
+
+    // Disengage tool when done.
     setTool(0);
 }

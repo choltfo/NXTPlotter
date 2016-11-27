@@ -1,0 +1,52 @@
+Group 16
+Charles H
+Namoos Y
+Ian F
+Matthew G
+
+Software task checklist:
+
+1) Convert SVG paths to G-code paths.
+2) Select between multiple tools.
+3) Automatically calibrate tool location.
+4) Follow tool path.
+5) Seperatly or synchronously move both axes.
+6) Create drawings that resemble the tool path.
+
+
+Testing plan:
+
+Environmental paramaters:
+- Machine should be assembled correctly on a flat, rigid, non-vibrating surface.
+- Nothing should be within the path of travel of either axis that is not part of the machine itself.
+- Pens should be mounted such that their tips touch the top edge of the bearing mounts (i.e, Chunks of grey plastic)
+- Cables are to be located and taped down such that they do not interfere with the travel of the axes.
+
+1: Accuracy testing:
+- Create SVG and tool path consisting of multiple 100 mm lines with both tools, along both axes.
+- Download ncc file onto robot.
+- Run program manually.
+- Select calibrate.
+- Select file. Find file name (test.ncc)
+- Allow to run to completion.
+- Measure lines produced.
+
+2: Speed testing:
+- Run program from RobotC
+- Select Joystick mode on display.
+- Measure time taken to move tool from one end of page to another.
+- Compare distance per unit time to specified speed.
+
+3: Size testing:
+a) Within 5mm of paper
+- Run program from RobotC
+- Select Joystick mode on display
+- Run tool to edge of paper
+- Observe that tool is at edge of paper, within spec.
+- Repeat for all edges.
+
+
+4: Integrity:
+- Download any particular toolpath.
+- Execute toolpath.
+- Observe intactness of paper.
